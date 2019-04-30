@@ -1,4 +1,4 @@
-import {configure, getLogger} from 'log4js';
+import { configure, getLogger } from 'log4js';
 import * as path from 'path';
 
 const appConfig = require('../../config');
@@ -32,18 +32,18 @@ configure({
 		},
 		http: {
 			type: path.join(__dirname, '../../log4js-http'),
-			application: 'api-server',
+			application: 'os-monitor',
 			url: appConfig.tapDataServer.logUrl
 		}
 	},
 	categories: {
 		default: {
 			appenders: ['app', 'out', 'http'],
-			level: 'info'
+			level: 'debug'
 		},
 		app: {
 			appenders: ['app', 'out', 'http'],
-			level: 'info'
+			level: 'debug'
 		}/*,
 		monitor: {
 			appenders: ['monitor', 'out'],

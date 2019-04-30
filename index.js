@@ -1,26 +1,41 @@
-const fork = require('child_process').fork;
 const appConfig = require('./config');
-const generator = require('./generators').generator;
 const report = require('./report');
 const log = require('./dist').log.app;
+const osu = require('node-os-utils');
 
 
 
 log.info('Config file at: ', `${__dirname}/config.js`);
 log.info('Current active config is: \n', appConfig);
 
-class Main{
+class Main {
 	constructor(props) {
-
 		/**
-		 * 应用工作进程
-		 * @type {ChildProcess}
+		 * 需要采集的硬件信息
 		 */
-		this.appWorker = null;
+		this.hwInfo = {
+			cpu: {
+				usage: 0,
+				count: 0
+			},
+			mem: {
+				total: 0, //--内存总大小KB
+				used: 0, //--使用大小KB
+				free: 0, //--剩余大小KB
+			},
+			disk: {},
+			disk_usage: 0
+		}
 
 		/**
-		 * 配置文件变化监听进程
-		 * @type {ChildProcess}
+		* 采集器的timer id
+		*/
+		this.timerIdOfCollector = null;
+
+
+		/**
+		 * 配置文件变化监听器，由timer实现
+		 *
 		 */
 		this.configMonitor = null;
 
@@ -36,7 +51,7 @@ class Main{
 	/**
 	 * 启动
 	 */
-	start(){
+	start() {
 
 		Object.assign(this.workerStatus, {
 			worker_process_id: '',
@@ -47,71 +62,65 @@ class Main{
 			worker_status: this.workerStatus
 		});
 
+
+		//启动采集timer
+		this.timerIdOfCollector = setInterval(this.gatherOsInfo, appConfig.reportIntervals, this);
+
+
 		// 启动 app 工作进程
-		this.startApp();
+		//this.startApp();
 
 		// 监听配置文件变化
 		this.startConfigChangeMonitor();
 	}
 
+	gatherOsInfo(mthis) {
+		//采集
+		log.debug('gatherOsInfo============================');
+		osu.drive.info()
+			.then(info => {
+				log.debug(info);
+				mthis.hwInfo.disk_usage = info.usedPercentage;
+				Object.assign(mthis.hwInfo.disk, info);
+			});
+		osu.cpu.usage()
+			.then(cpuPercentage => {
+				mthis.hwInfo.cpu.usage = cpuPercentage;
+			});
+		mthis.hwInfo.cpu.count = osu.cpu.count();
+		osu.mem.info()
+			.then(info => {
+				log.debug('mem:', info);
+				mthis.hwInfo.mem.free = info.freeMemMb * 1024;
+				mthis.hwInfo.mem.total = info.totalMemMb * 1024;
+				mthis.hwInfo.mem.used = info.usedMemMb * 1024;
+				Object.assign(mthis.hwInfo.mem, info);
+			});
+		// //上报
+		report.setStatus({ info: mthis.hwInfo });
+
+	}
+
 	/**
 	 * 停止
 	 */
-	stop(){
+	stop() {
 
-		if( this.appWorker ){
+		if (this.appWorker) {
 			this.appWorker.kill();
 			log.info('app worker process exited.');
 		}
 
-		if( this.configMonitor ){
+		if (this.configMonitor) {
 			this.configMonitor.stop();
 			log.info('configMonitor process exited.');
 		}
 	}
 
 	/**
-	 * 启动 app 进程
-	 */
-	startApp(){
-
-		if( this.appWorker )
-			this.appWorker.kill();
-
-		this.appWorker = fork(`${__dirname}/app.js`, process.argv.slice(2));
-
-		this.appWorker.on('exit', (code) => {
-			Object.assign(this.workerStatus, {
-				worker_process_id: '',
-				worker_process_end_time: new Date().getTime(),
-				status: 'stop',
-				exit_code: code
-			});
-			report.setStatus({
-				worker_status: this.workerStatus
-			});
-		});
-
-		this.appWorker.on('message', (msg) => {
-			if( msg.type === 'status') {
-				Object.assign(this.workerStatus, {
-					worker_process_id: this.appWorker.pid,
-					worker_process_end_time: null,
-					worker_process_start_time: new Date().getTime(),
-					status: msg.data,
-					exit_code: null
-				});
-				report.setStatus({
-					worker_status: this.workerStatus
-				});
-			}
-		})
-	}
-
-	/**
 	 * 配置文件发生变化
 	 */
-	startConfigChangeMonitor(){
+	startConfigChangeMonitor() {
 		/**
 		 * 配置文件变化监听进程
 		 * @type {ChildProcess}
@@ -119,53 +128,36 @@ class Main{
 		this.configMonitor = require('./monitor');
 
 		this.configMonitor.on('message', (event) => {
-			if( event && event.type === 'changed'){
+			if (event && event.type === 'changed') {
 
 				log.info('config is changed, regenerator api.')
 
 				const config = event.data;
 
-				// 生成代码
-				this.generator(config);
-			}
-		} );
-		this.configMonitor.start();
-	}
+				//无论什么变化，我都认为是采集间隔时间变化了，接下来：
+				//重启timer，采集上报
 
-	/**
-	 * 生成代码
-	 * @param config
-	 * @private
-	 */
-	generator(config){
-		log.info('开始生成代码');
-		try {
-			generator(config, (result) => {
-				if( result ){
-					log.info('generator code successful, restart app server.');
-					this.workerStatus.status = 'restart';
-					this.startApp();
+				log.debug("what's this?", config);
+				let newInterval = config.value * 1000;
+
+				if (Number.isNaN(newInterval) || newInterval < 0) {
+					log.warn("Tapdata give me a invalid report intervals,discard,I will use my local config value: ", appConfig.reportIntervals);
+
 				} else {
-					log.info('generator code fail.');
-					this.workerStatus.status = 'deploy_fail';
+					log.info("Reset garther and report timer...");
+					clearInterval(this.timerIdOfCollector);
+					log.debug("old appConfig.reportIntervals:", appConfig.reportIntervals);
+					appConfig.reportIntervals = newInterval;
+					log.debug("new appConfig.reportIntervals:", appConfig.reportIntervals);
+					this.timerIdOfCollector = setInterval(this.gatherOsInfo, appConfig.reportIntervals, this);
+
+					report.resetTimer();
+
 				}
 
-				report.setStatus({
-					worker_status: this.workerStatus
-				});
-			});
-
-			this.workerStatus.status = 'deploying';
-			report.setStatus({
-				worker_status: this.workerStatus
-			});
-		} catch (e) {
-			log.error('generator code fail.', e);
-			this.workerStatus.status = 'deploy_fail';
-			report.setStatus({
-				worker_status: this.workerStatus
-			});
-		}
+			}
+		});
+		this.configMonitor.start();
 	}
 
 }
@@ -173,11 +165,11 @@ class Main{
 const main = new Main();
 main.start();
 
-const exitHandler = function(){
+const exitHandler = function () {
 	log.info("Stoping api gateway...");
 	main.stop();
 	log.info("api gateway stoped.");
 };
 process.on('exit', exitHandler);
 //process.on('SIGKILL', exitHandler);
-require('fs').writeFileSync(`${__dirname}/server.pid`, `${process.pid}\n`, { encoding: 'utf-8'});
+require('fs').writeFileSync(`${__dirname}/server.pid`, `${process.pid}\n`, { encoding: 'utf-8' });

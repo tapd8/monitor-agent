@@ -69,7 +69,8 @@
     "passport-jwt": "^4.0.0",
     "request": "^2.88.0",
     "scan-fs": "0.0.5",
-    "through2": "^3.0.0"
+    "through2": "^3.0.0",
+    "node-os-utils": "1.0.7"
   },
   "devDependencies": {
     "@loopback/build": "^1.0.1",

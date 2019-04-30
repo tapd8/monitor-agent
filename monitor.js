@@ -12,18 +12,20 @@ const getToken = require('./tapdata').getToken;
  * @type {null}
  */
 let lastHashCode = null,
-	timeoutId ;
+	intervalId;
 
 /**
  * 加载配置文件
  */
 const
-  __listeners = {},
-  loadConfig = function(token) {
+	__listeners = {},
+	loadConfig = function (token) {
 
-		log.debug('download load config from tapDataServer ' + appConfig.tapDataServer.url);
-		request.get(appConfig.tapDataServer.url + '?access_token=' + token, function(err, response, body) {
-			if( err ){
+		let settingUrl = appConfig.tapDataServer.url + '&access_token=' + token;
+		log.debug('download load config from tapDataServer ' + settingUrl);
+		request.get(settingUrl, function (err, response, body) {
+
+			if (err) {
 				log.error('download config fail.', err);
 			} else {
 				log.debug('download config success.');
@@ -33,12 +35,13 @@ const
 					log.error('the configuration file is not in the expected JSON format.', body);
 					return;
 				}*/
+				log.debug(body);
 
 				//  计算 hashCode 比较是否有修改
 				let newHashCode = hashCode().value(body);
-				// log.info(`old config hash code: ${lastHashCode}, new config hash code: ${newHashCode}`);
+				log.debug(`old config hash code: ${lastHashCode}, new config hash code: ${newHashCode}`);
 
-				if( newHashCode !== lastHashCode ){
+				if (newHashCode !== lastHashCode) {
 					lastHashCode = newHashCode;
 
 					log.info('tap data config is changed, cache remote config to local.');
@@ -46,24 +49,25 @@ const
 					// 保存到本地缓存目录
 					fs.writeFileSync(getCacheConfig(), body + "\n");
 
-					try{
-						let config = JSON.parse(body);
+					try {
+						let config = JSON.parse(body)[0];
+						log.debug(config);
 
 						// 通知配置文件更新了
 						const msg = {
 							type: 'changed',
 							data: config
 						};
-						if ( __listeners['message']){
+						if (__listeners['message']) {
 							__listeners['message'].forEach((l) => {
-								if( typeof l === 'function' )
+								if (typeof l === 'function')
 									l(msg);
 							})
 						}
 
 
 					} catch (e) {
-						log.error('parse config error: \n',e);
+						log.error('parse config error: \n', e);
 					}
 				}
 			}
@@ -74,9 +78,9 @@ const
 	 * 系统启动时，初始化一些配置信息
 	 * @private
 	 */
-	__init = function(cb){
+	__init = function (cb) {
 		const localConfigFilePath = getCacheConfig();
-		if( fs.existsSync( localConfigFilePath ) ){
+		if (fs.existsSync(localConfigFilePath)) {
 			let config = fs.readFileSync(localConfigFilePath).toString();
 			lastHashCode = hashCode().value(config.trim());
 		}
@@ -86,7 +90,7 @@ const
 	/**
 	 * 获取本地缓存配置文件路径
 	 */
-	getCacheConfig = function(){
+	getCacheConfig = function () {
 
 		const cacheDirPath = appConfig.cacheDir.startsWith('/') ? appConfig.cacheDir : path.join(__dirname, appConfig.cacheDir);
 		if (!fs.existsSync(cacheDirPath)) {
@@ -97,16 +101,16 @@ const
 		return path.resolve(`${cacheDirPath}/tap_data_server_download_config.json`);
 	};
 
-exports.on = function(type, listener){
-	if( !__listeners[type] )
+exports.on = function (type, listener) {
+	if (!__listeners[type])
 		__listeners[type] = [];
 	__listeners[type].push(listener);
 };
-exports.start = function(){
+exports.start = function () {
 	__init(() => {
-		timeoutId = setInterval(() =>{
-			getToken( token => {
-				if( token ) {
+		timeoutId = setInterval(() => {
+			getToken(token => {
+				if (token) {
 					loadConfig(token);
 				}
 			})
@@ -114,7 +118,7 @@ exports.start = function(){
 		}, appConfig.intervals);
 	});
 };
-exports.stop = function(){
-	if( timeoutId )
-		setInterval(timeoutId);
+exports.stop = function () {
+	if (intervalId)
+		clearInterval(intervalId);
 };

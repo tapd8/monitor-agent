@@ -10,37 +10,38 @@ const apiServerStatus = {
 	worker_status: {}
 };
 
-const report = function(data, token) {
+const report = function (data, token) {
 	const configPath = path.join(__dirname, 'config.json');
 
 	const reportServerUrl = appConfig.tapDataServer.reportUrl + '?access_token=' + token;
 
-	if( !reportServerUrl || !reportServerUrl)
+	if (!reportServerUrl || !reportServerUrl)
 		return;
 
-	data = Object.assign(data || {}, appConfig.reportData );
+	data = Object.assign(data || {}, appConfig.reportData);
 
 	data['start_time'] = startTime;
 	data['ping_time'] = new Date().getTime();
 	data['worker_ip'] = hostname;
+	data['computer_name'] = hostname;
 	data['total_thread'] = 2;
 	data['running_thread'] = apiServerStatus.worker_status.status === 'running' ? 2 : 1;
-        data['version'] = appConfig.version;
+	data['version'] = appConfig.version;
 
 	Object.assign(data, apiServerStatus);
 
 	try {
 		log.debug('report data', data);
 		request.post({
-			url: reportServerUrl + encodeURI(`&[where][process_id]=${appConfig.reportData.process_id}&[where][worker_type]=${appConfig.reportData.worker_type}` ),
+			url: reportServerUrl + encodeURI(`&[where][process_id]=${appConfig.reportData.process_id}&[where][worker_type]=${appConfig.reportData.worker_type}`),
 			json: true,
 			body: data
 		}, (err, resp, body) => {
 
-			if( err ){
+			if (err) {
 				log.error('report fail', err);
 			} else {
-				log.debug(`report complete:`, body);
+				log.debug('report complete:', body);
 			}
 
 		});
@@ -49,13 +50,24 @@ const report = function(data, token) {
 	}
 };
 
-setInterval(() => {
-	getToken(token => {
-		if( token )
-			report(null, token)
-	})
-}, appConfig.reportIntervals || 1000);
+let reportIntervalId = setInterval(timerCb, appConfig.reportIntervals);
 
-exports.setStatus = function(status){
+exports.resetTimer = function () {
+	clearInterval(reportIntervalId);
+	log.info("Reset report timer,the new intervals:", appConfig.reportIntervals);
+	reportIntervalId = setInterval(timerCb, appConfig.reportIntervals);
+
+};
+
+exports.setStatus = function (status) {
 	Object.assign(apiServerStatus, status);
 };
+function timerCb() {
+
+	getToken(token => {
+		if (token)
+			report(null, token);
+	});
+
+}
+
