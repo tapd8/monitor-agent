@@ -27,14 +27,12 @@ cp -r \
 	*.ts \
 	start.sh \
 	stop.sh \
-	generators \
 	node_modules \
-	public \
 	src \
 	$TARGET_PATH
 
 echo ";config.version = '$VERSION';" >> "$TARGET_PATH/config.js"
-#sed -i '$d' "$APP_HOME/config.js"
+#sed -i '$d' "$APP_HOME/config.js" # delete last line
 
 echo "Removing some files..."
 rm -rf \
