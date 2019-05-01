@@ -21,7 +21,7 @@ const config = {
 	'tapDataServer': {
 		'url': `${tapdata_origin}/api/Settings?filter=` + encodeURIComponent('{"where":{"id":"49"}}'),
 		'tokenUrl': `${tapdata_origin}/api/users/generatetoken`, // url to get token by accessCode
-		'reportUrl': `${tapdata_origin}/api/Workers/upsertWithWhere`,
+		'reportUrl': `${tapdata_origin}/api/Workers`,
 		'logUrl': `${tapdata_origin}/api/Logs`,
 		'accessCode': 'bd16c77a-2111-499c-b2ae-a35c587ea83a',
 	},
