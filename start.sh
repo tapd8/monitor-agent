@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#export API_SERVER_ENV=$1
-
 WORK_DIR="`pwd`"
 APP_HOME="$(cd `dirname $0`; pwd)"
 
@@ -17,7 +15,7 @@ echo "Version of node: `node -v`"
 # npm version
 # echo "Version of npx: `npx -v`"
 echo
-echo "Start API Server..."
+echo "Start OS-MONITOR service..."
 echo
 echo "APP_HOME: $APP_HOME"
 echo "WORK_DIR: $WORK_DIR"
@@ -28,28 +26,23 @@ echo
 echo "Config file at:"
 echo "$APP_HOME/config.js"
 echo
-echo "Stop API server with:"
+echo "Stop OS-MONITOR service with:"
 echo "$APP_HOME/stop.sh"
 echo
 
-if [ -f "$APP_HOME/app.pid" ]; then
-	echo "API Web server pid is `cat $APP_HOME/app.pid`, kill it."
-	kill -9 `cat $APP_HOME/app.pid` > /dev/null 2>&1
-fi
-
 if [ -f "$APP_HOME/server.pid" ]; then
-	echo "API Server pid is `cat $APP_HOME/server.pid`, kill it."
+	echo "OS-MONITOR service pid is `cat $APP_HOME/server.pid`, kill it."
 	kill -9 `cat $APP_HOME/server.pid` > /dev/null 2>&1
 fi
 
 if [ -d "$APP_HOME/dist" ]; then
 	node $APP_HOME/index.js > /dev/null 2>&1 &
-	echo "API Server started."
+	echo "OS-MONITOR service started."
 else
 	cd $APP_HOME
 	npm run build
 	cd $WORK_DIR
 	node $APP_HOME/index.js > /dev/null 2>&1 &
-	echo "API Server started."
+	echo "OS-MONITOR service started."
 fi
 
