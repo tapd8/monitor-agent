@@ -106,11 +106,6 @@ class Main {
 	 */
 	stop() {
 
-		if (this.appWorker) {
-			this.appWorker.kill();
-			log.info('app worker process exited.');
-		}
-
 		if (this.configMonitor) {
 			this.configMonitor.stop();
 			log.info('configMonitor process exited.');
@@ -121,16 +116,13 @@ class Main {
 	 * 配置文件发生变化
 	 */
 	startConfigChangeMonitor() {
-		/**
-		 * 配置文件变化监听进程
-		 * @type {ChildProcess}
-		 */
+
 		this.configMonitor = require('./monitor');
 
 		this.configMonitor.on('message', (event) => {
 			if (event && event.type === 'changed') {
 
-				log.info('config is changed, regenerator api.')
+				log.info('config is changed ...')
 
 				const config = event.data;
 
@@ -146,9 +138,9 @@ class Main {
 				} else {
 					log.info("Reset garther and report timer...");
 					clearInterval(this.timerIdOfCollector);
-					log.debug("old appConfig.reportIntervals:", appConfig.reportIntervals);
+					log.info("old appConfig.reportIntervals:", appConfig.reportIntervals);
 					appConfig.reportIntervals = newInterval;
-					log.debug("new appConfig.reportIntervals:", appConfig.reportIntervals);
+					log.info("new appConfig.reportIntervals:", appConfig.reportIntervals);
 					this.timerIdOfCollector = setInterval(this.gatherOsInfo, appConfig.reportIntervals, this);
 
 					report.resetTimer();
@@ -157,6 +149,7 @@ class Main {
 
 			}
 		});
+
 		this.configMonitor.start();
 	}
 
