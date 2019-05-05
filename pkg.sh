@@ -7,7 +7,7 @@ echo "cd $APP_HOME"
 cd $APP_HOME
 # VERSION=`grep "version" $APP_HOME/package.json | awk -F: '{ print $2 }' | awk -F \" '{ print $2 }'`
 VERSION=`git describe --long HEAD`
-TARGET_NAME=apig-$VERSION
+TARGET_NAME=os-monitor-$VERSION
 TARGET_PATH="$APP_HOME/deploy/$TARGET_NAME"
 
 if [ -d $TARGET_PATH ]; then
