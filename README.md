@@ -39,7 +39,7 @@ os-monitor，操作系统硬件信息监控上报服务，根据 tapdata-manager
 # 1. 安装依赖
 npm install
 
-# 2. 打包，版本号在 package.json 中配置
+# 2. 打包
 ./pkg.sh
 
 ```
