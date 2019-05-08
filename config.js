@@ -15,8 +15,6 @@ const config = {
 	 * when user modify the reportIntervals,the reportIntervals will take up to @intervals ms to take effect
 	 */
 	'intervals': 5 * 1000, //ms
-	'host': '0.0.0.0',
-	'port': api_server_port,
 	'tapDataServer': {
 		'url': `${tapdata_origin}/api/Settings?filter=` + encodeURIComponent('{"where":{"id":"49"}}'),
 		'tokenUrl': `${tapdata_origin}/api/users/generatetoken`, // url to get token by accessCode
