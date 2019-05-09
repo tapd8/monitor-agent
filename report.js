@@ -27,6 +27,7 @@ const report = function (data, token) {
 	data['total_thread'] = 2;
 	data['running_thread'] = apiServerStatus.worker_status.status === 'running' ? 2 : 1;
 	data['version'] = appConfig.version;
+	data['reportIntervals'] = appConfig.reportIntervals
 
 	Object.assign(data, apiServerStatus);
 
