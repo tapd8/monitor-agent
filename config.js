@@ -23,8 +23,8 @@ const config = {
 		'accessCode': 'bd16c77a-2111-499c-b2ae-a35c587ea83a',
 	},
 	/**
-	 * @reportIntervals Gather and report intervals
-	 * this value can be modified by tapdatamanager users;
+	 * @reportIntervals Gather and report initial start intervals
+	 * this value can be modified by tapdatamanager users within Setting menu;
 	 */
 	'reportIntervals': 30 * 1000, // milliseconds
 	'reportData': {

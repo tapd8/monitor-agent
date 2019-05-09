@@ -133,7 +133,7 @@ class Main {
 				let newInterval = config.value * 1000;
 
 				if (Number.isNaN(newInterval) || newInterval < 0) {
-					log.warn("Tapdata give me a invalid report intervals,discard,I will use my local config value: ", appConfig.reportIntervals);
+					log.warn("Tapdata give me a invalid report intervals,discard,I will use default value: ", config.default_value);
 
 				} else {
 					log.info("Reset garther and report timer...");
