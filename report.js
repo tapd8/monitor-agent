@@ -21,7 +21,7 @@ const report = function (data, token) {
 	data = Object.assign(data || {}, appConfig.reportData);
 
 	data['start_time'] = startTime;
-	data['ping_time'] = new Date().getTime();
+//	data['ping_time'] = new Date().getTime();
 	data['worker_ip'] = hostname;
 	data['computer_name'] = hostname;
 	data['total_thread'] = 2;
