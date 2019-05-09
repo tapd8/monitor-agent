@@ -39,11 +39,11 @@ configure({
 	categories: {
 		default: {
 			appenders: ['app', 'out', 'http'],
-			level: 'debug'
+			level: 'info'
 		},
 		app: {
 			appenders: ['app', 'out', 'http'],
-			level: 'debug'
+			level: 'info'
 		}/*,
 		monitor: {
 			appenders: ['monitor', 'out'],
