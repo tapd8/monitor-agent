@@ -1,12 +1,12 @@
 ## 如何部署和启动停止服务
 
-### 1、将部署压缩包解压
-将部署压缩包文件apig-v*.tar.gz拷贝或下载到需要部署的目标机器上，在目标机器上解包：
+### 1、将待部署的压缩包解压
+将待部署的压缩包文件os-monitor-v*.tar.gz拷贝或下载到需要部署的目标机器上，在目标机器上解包：
 
 ```shell
 
-tar -xf apig-v*.tar.gz
-cd apig-v*/
+tar -xf os-monitor-v*.tar.gz
+cd os-monitor-v*/
 
 ```
 
