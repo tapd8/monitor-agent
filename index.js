@@ -2,10 +2,23 @@ const appConfig = require('./config');
 const report = require('./report');
 const log = require('./dist').log.app;
 const osu = require('node-os-utils');
+const uuidv4 = require('uuid/v4');
+const fs = require('fs');
 
 
 
 log.info('Config file at: ', `${__dirname}/config.js`);
+
+if (appConfig.reportData.process_id) {
+
+} else {
+	//1.生成uuid;2.写入配置文件config.js
+	let uuid = uuidv4();
+	appConfig.reportData.process_id = uuid;
+	let uuid2f = `config.reportData.process_id = '${uuid}';\n`;
+	fs.appendFileSync(`${__dirname}/config.js`, uuid2f);
+}
+
 log.info('Current active config is: \n', appConfig);
 
 class Main {
@@ -133,7 +146,7 @@ class Main {
 				let newInterval = config.value * 1000;
 
 				if (Number.isNaN(newInterval) || newInterval < 0) {
-				    log.warn("Tapdata give me a invalid report intervals, discard, give up resetting the timer (ms): " , appConfig.reportIntervals);
+					log.warn("Tapdata give me a invalid report intervals, discard, give up resetting the timer (ms): ", appConfig.reportIntervals);
 
 				} else {
 					log.info("Reset garther and report timer...");

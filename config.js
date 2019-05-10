@@ -2,7 +2,6 @@
 const tapdata_port = process.env['TAPDATA_PORT'] || '3030';  //tapdata server port
 const tapdata_host = process.env['TAPDATA_HOST'] || '127.0.0.1';  //tapdata server ip
 const tapdata_origin = process.env['TAPDATA_ORIGIN'] || `http://${tapdata_host}:${tapdata_port}`;
-const process_id = process.env['THIS_MONITOR_UUID'] || '84fdad8b-5feb-4645-8e6f-2bbb1b408de9';
 //</Config at here>
 
 
@@ -28,8 +27,7 @@ const config = {
 	 */
 	'reportIntervals': 30 * 1000, // milliseconds
 	'reportData': {
-		'worker_type': 'system',
-		'process_id': process_id
+		'worker_type': 'system'
 	},
 
 	'cacheDir': 'cache',
