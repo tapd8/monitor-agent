@@ -22,10 +22,16 @@ const config = {
 		'accessCode': 'bd16c77a-2111-499c-b2ae-a35c587ea83a',
 	},
 	/**
-	 * @reportIntervals Gather and report initial start intervals
-	 * this value can be modified by tapdatamanager users within Setting menu;
+	 * @reportIntervals Report initial start intervals
+	 * when gatherIntervals<=50s，reportIntervals=gatherIntervals
+	 * when gatherIntervals>50s，reportIntervals=50s
 	 */
 	'reportIntervals': 30 * 1000, // milliseconds
+	/**
+	 * @gatherIntervals Gather initial start intervals
+	 * this value can be modified by tapdatamanager users within Setting menu;
+	 */
+	'gatherIntervals': 30 * 1000, // milliseconds
 	'reportData': {
 		'worker_type': 'system'
 	},

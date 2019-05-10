@@ -46,8 +46,8 @@ const
 
 					log.info('tap data config is changed, cache remote config to local.');
 
-					// 保存到本地缓存目录
-					fs.writeFileSync(getCacheConfig(), body + "\n");
+					// // 保存到本地缓存目录
+					// fs.writeFileSync(getCacheConfig(), body + "\n");
 
 					try {
 						let config = JSON.parse(body)[0];
@@ -79,11 +79,11 @@ const
 	 * @private
 	 */
 	__init = function (cb) {
-		const localConfigFilePath = getCacheConfig();
-		if (fs.existsSync(localConfigFilePath)) {
-			let config = fs.readFileSync(localConfigFilePath).toString();
-			lastHashCode = hashCode().value(config.trim());
-		}
+		// const localConfigFilePath = getCacheConfig();
+		// if (fs.existsSync(localConfigFilePath)) {
+		// 	let config = fs.readFileSync(localConfigFilePath).toString();
+		// 	lastHashCode = hashCode().value(config.trim());
+		// }
 		cb();
 	},
 

@@ -77,7 +77,7 @@ class Main {
 
 
 		//启动采集timer
-		this.timerIdOfCollector = setInterval(this.gatherOsInfo, appConfig.reportIntervals, this);
+		this.timerIdOfCollector = setInterval(this.gatherOsInfo, appConfig.gatherIntervals, this);
 
 
 		// 启动 app 工作进程
@@ -146,15 +146,24 @@ class Main {
 				let newInterval = config.value * 1000;
 
 				if (Number.isNaN(newInterval) || newInterval < 0) {
-					log.warn("Tapdata give me a invalid report intervals, discard, give up resetting the timer (ms): ", appConfig.reportIntervals);
+					log.warn("Tapdata give me a invalid garther intervals, discard, give up resetting the timer (ms): ", appConfig.gatherIntervals);
 
 				} else {
+					if (newInterval > 50 * 1000) {
+						//高于50s时，发送频率=50s
+						appConfig.reportIntervals = 50 * 1000;
+
+					}
+					else {
+						//采集频率设置低于50s时，上报频率=采集频率
+						appConfig.reportIntervals = newInterval;
+					}
 					log.info("Reset garther and report timer...");
 					clearInterval(this.timerIdOfCollector);
-					log.info("old appConfig.reportIntervals:", appConfig.reportIntervals);
-					appConfig.reportIntervals = newInterval;
-					log.info("new appConfig.reportIntervals:", appConfig.reportIntervals);
-					this.timerIdOfCollector = setInterval(this.gatherOsInfo, appConfig.reportIntervals, this);
+					log.info("old appConfig.gatherIntervals:", appConfig.gatherIntervals);
+					appConfig.gatherIntervals = newInterval;
+					log.info("new appConfig.gatherIntervals:", appConfig.gatherIntervals);
+					this.timerIdOfCollector = setInterval(this.gatherOsInfo, appConfig.gatherIntervals, this);
 
 					report.resetTimer();
 

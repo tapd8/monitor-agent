@@ -21,13 +21,14 @@ const report = function (data, token) {
 	data = Object.assign(data || {}, appConfig.reportData);
 
 	data['start_time'] = startTime;
-//	data['ping_time'] = new Date().getTime();
+	//	data['ping_time'] = new Date().getTime();
 	data['hostname'] = hostname;
 	data['computer_name'] = hostname;
 	data['total_thread'] = 2;
 	data['running_thread'] = apiServerStatus.worker_status.status === 'running' ? 2 : 1;
 	data['version'] = appConfig.version;
-	data['reportIntervals'] = appConfig.reportIntervals
+	data['reportIntervals'] = appConfig.reportIntervals;
+	data['gatherIntervals'] = appConfig.gatherIntervals;
 
 	Object.assign(data, apiServerStatus);
 
