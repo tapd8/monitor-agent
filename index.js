@@ -101,14 +101,21 @@ class Main {
 				mthis.hwInfo.cpu.usage = cpuPercentage;
 			});
 		mthis.hwInfo.cpu.count = osu.cpu.count();
-		osu.mem.info()
-			.then(info => {
-				log.debug('mem:', info);
-				mthis.hwInfo.mem.free = info.freeMemMb * 1024;
-				mthis.hwInfo.mem.total = info.totalMemMb * 1024;
-				mthis.hwInfo.mem.used = info.usedMemMb * 1024;
-				Object.assign(mthis.hwInfo.mem, info);
-			});
+		// osu.mem.info()
+		// 	.then(info => {
+		//有bug：https://github.com/SunilWang/node-os-utils/issues/3
+		// 		log.debug('mem:', info);
+		// 		mthis.hwInfo.mem.free = info.freeMemMb * 1024;
+		// 		mthis.hwInfo.mem.total = info.totalMemMb * 1024;
+		// 		mthis.hwInfo.mem.used = info.usedMemMb * 1024;
+		// 		Object.assign(mthis.hwInfo.mem, info);
+		// 	});
+		let os = require('os');
+		mthis.hwInfo.mem.total = os.totalmem() / 1024;
+		mthis.hwInfo.mem.free = os.freemem() / 1024;
+		mthis.hwInfo.mem.used = mthis.hwInfo.mem.total - mthis.hwInfo.mem.free;
+
+
 		// //上报
 		report.setStatus({ info: mthis.hwInfo });
 
