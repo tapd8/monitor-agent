@@ -30,11 +30,6 @@ echo "Stop OS-MONITOR service with:"
 echo "$APP_HOME/stop.sh"
 echo
 
-if [ -f "$APP_HOME/server.pid" ]; then
-	echo "OS-MONITOR service pid is `cat $APP_HOME/server.pid`, kill it."
-	kill -9 `cat $APP_HOME/server.pid` > /dev/null 2>&1
-fi
-
 if [ -d "$APP_HOME/dist" ]; then
 	node $APP_HOME/index.js > /dev/null 2>&1 &
 	echo "OS-MONITOR service started."
