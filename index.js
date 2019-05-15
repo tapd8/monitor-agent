@@ -1,22 +1,31 @@
+const os = require('os');
 const appConfig = require('./config');
 const report = require('./report');
 const log = require('./dist').log.app;
 const osu = require('node-os-utils');
 const uuidv4 = require('uuid/v4');
+// const uuidv1 = require('uuid/v1');
 const fs = require('fs');
 
+appConfig.cfg_dir = appConfig.cfg_dir.replace(/^~/, os.homedir());
 
+// log.info(`${appConfig.cfg_dir}`);
 
 log.info('Config file at: ', `${__dirname}/config.js`);
 
-if (appConfig.reportData.process_id) {
+if (!fs.existsSync(appConfig.cfg_dir)) {
+	fs.mkdirSync(appConfig.cfg_dir, { recursive: true });
+}
 
+if (fs.existsSync(`${appConfig.cfg_dir}/uuid.js`)) {
+	// 1. 从缓存文件加载
+	appConfig.reportData.process_id = require(`${appConfig.cfg_dir}/uuid.js`);
 } else {
-	//1.生成uuid;2.写入配置文件config.js
+	// 2. 没有缓存的，生成缓存，并赋值
 	let uuid = uuidv4();
 	appConfig.reportData.process_id = uuid;
-	let uuid2f = `config.reportData.process_id = '${uuid}';\n`;
-	fs.appendFileSync(`${__dirname}/config.js`, uuid2f);
+	let uuid2f = `module.exports = '${uuid}';\n`;
+	fs.writeFileSync(`${appConfig.cfg_dir}/uuid.js`, uuid2f);
 }
 
 log.info('Current active config is: \n', appConfig);
@@ -110,7 +119,6 @@ class Main {
 		// 		mthis.hwInfo.mem.used = info.usedMemMb * 1024;
 		// 		Object.assign(mthis.hwInfo.mem, info);
 		// 	});
-		let os = require('os');
 		mthis.hwInfo.mem.total = os.totalmem() / 1024;
 		mthis.hwInfo.mem.free = os.freemem() / 1024;
 		mthis.hwInfo.mem.used = mthis.hwInfo.mem.total - mthis.hwInfo.mem.free;
@@ -194,4 +202,4 @@ const exitHandler = function () {
 };
 process.on('exit', exitHandler);
 //process.on('SIGKILL', exitHandler);
-require('fs').writeFileSync(`${__dirname}/server.pid`, `${process.pid}\n`, { encoding: 'utf-8' });
+fs.writeFileSync(`${appConfig.cfg_dir}/server.pid`, `${process.pid}\n`, { encoding: 'utf-8' });

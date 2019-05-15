@@ -2,6 +2,7 @@
 
 WORK_DIR="`pwd`"
 APP_HOME="$(cd `dirname $0`; pwd)"
+CACHE_DID="$TAPDATA_WORK_DIR/os-monitor"
 
 export PATH=$APP_HOME/NDK/node/bin:$PATH
 
@@ -19,6 +20,7 @@ echo "Start OS-MONITOR service..."
 echo
 echo "APP_HOME: $APP_HOME"
 echo "WORK_DIR: $WORK_DIR"
+echo "CACHE_DID: $CACHE_DID"
 echo
 echo "Watch logs with:"
 echo "tail -f $APP_HOME/logs/app.log"
@@ -30,6 +32,11 @@ echo "Stop OS-MONITOR service with:"
 echo "$APP_HOME/stop.sh"
 echo
 
+if [ -f "$CACHE_DID/server.pid" ]; then
+	echo "OS-MONITOR service pid is `cat $CACHE_DID/server.pid`, kill it."
+  kill -9 `cat $CACHE_DID/server.pid` > /dev/null 2>&1
+fi
+
 if [ -d "$APP_HOME/dist" ]; then
 	node $APP_HOME/index.js > /dev/null 2>&1 &
 	echo "OS-MONITOR service started."
@@ -40,4 +47,3 @@ else
 	node $APP_HOME/index.js > /dev/null 2>&1 &
 	echo "OS-MONITOR service started."
 fi
-
