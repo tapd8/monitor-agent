@@ -32,6 +32,11 @@ const report = function (data, token) {
 
 	Object.assign(data, apiServerStatus);
 
+	if (!data.info) {
+		//脏数据，不上报
+		return;
+	}
+
 	try {
 		log.debug('report data', data);
 		request.post({
