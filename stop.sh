@@ -2,7 +2,7 @@
 
 WORK_DIR="`pwd`"
 APP_HOME="$(cd `dirname $0`; pwd)"
-CACHE_DID="$TAPDATA_WORK_DIR/os-monitor"
+CACHE_DID=${TAPDATA_WORK_DIR:=~/.tapdata}/os-monitor
 
 echo
 echo "Stop OS-MONITOR service..."
