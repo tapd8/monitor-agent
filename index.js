@@ -23,7 +23,7 @@ if (fs.existsSync(`${appConfig.cfg_dir}/uuid.js`)) {
 } else {
 	// 2. 没有缓存的，生成缓存，并赋值
 	let uuid = uuidv4();
-	appConfig.reportData.process_id = uuid;
+	appConfig.reportData.process_id = uuid; //注：process_id不是pid，命名不好，其实就是UUID
 	let uuid2f = `module.exports = '${uuid}';\n`;
 	fs.writeFileSync(`${appConfig.cfg_dir}/uuid.js`, uuid2f);
 }
