@@ -1,16 +1,10 @@
 #!/bin/bash
 
-if [ "$BUILD_PLATFORM" == "arm64" ]; then
-		NDK_ARC=arm64
-else
-		NDK_ARC=x64
-fi
-
 WORK_DIR="`pwd`"
 APP_HOME="$(cd `dirname $0`; pwd)"
 CACHE_DID=${TAPDATA_WORK_DIR:=~/.tapdata}/os-monitor
 
-export PATH=$APP_HOME/NDK/$NDK_ARC/node/bin:$PATH
+export PATH=$APP_HOME/NDK/node/bin:$PATH
 
 echo
 echo
